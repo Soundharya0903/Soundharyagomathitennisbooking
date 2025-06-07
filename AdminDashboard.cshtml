@@ -1,0 +1,93 @@
+@model TennisCourtBookingSystem.Models.AdminDashboardViewModel
+@{
+    ViewBag.Title = "Admin Dashboard";
+}
+
+<h2>Admin Dashboard</h2>
+
+<!-- Success & Error Messages -->
+@if (ViewBag.Success != null)
+{
+    <div class="alert alert-success">@ViewBag.Success</div>
+}
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+@if (!string.IsNullOrEmpty(ViewBag.UserMessage))
+{
+    <div class="alert alert-info">@ViewBag.UserMessage</div>
+}
+
+<!-- Search Form -->
+<form method="get" action="@Url.Action("AdminDashboard")" class="mb-3">
+    <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="Search by name or email" class="form-control d-inline w-50" />
+    <button type="submit" class="btn btn-primary mt-2">Search</button>
+</form>
+
+<!-- User Table -->
+@if (Model.Users.Any())
+{
+    <h4>Users</h4>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Users)
+            {
+                <tr>
+                    <td>@user.Name</td>
+                    <td>@user.Email</td>
+                    <td>@user.Role</td>
+                    <td>
+                        <form action="@Url.Action("DeleteUser", "Account")" method="post" onsubmit="return confirm('Delete user and all bookings?');" style="display:inline;">
+                            <input type="hidden" name="id" value="@user.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<!-- Booking Table -->
+@if (Model.Bookings.Any())
+{
+    <h4>Bookings</h4>
+    <table class="table table-bordered table-hover">
+        <thead class="table-secondary">
+            <tr>
+                <th>User Name</th>
+                <th>Date</th>
+                <th>Time Slot</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Model.Bookings)
+            {
+                var user = Model.Users.FirstOrDefault(u => u.Id == booking.UserId);
+                <tr>
+                    <td>@(user?.Name ?? "Unknown")</td>
+                    <td>@booking.BookingDate.ToString("yyyy-MM-dd")</td>
+                    <td>@booking.TimeSlot</td>
+                    <td>
+                        <!-- Use GET version for DeleteBooking (admin use) -->
+                        <form action="@Url.Action("DeleteBooking", "Account")" method="post" onsubmit="return confirm('Delete this booking?');" style="display:inline;">
+                            <input type="hidden" name="id" value="@booking.Id" />
+                            <button type="submit" class="btn btn-warning btn-sm">Delete Booking</button>
+                        </form>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
