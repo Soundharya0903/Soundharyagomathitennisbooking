@@ -1,0 +1,57 @@
+@model List<TennisCourtBookingSystem.Models.Booking>
+
+@{
+    ViewBag.Title = "User Dashboard";
+}
+
+<h2>Welcome, @Session["UserName"]!</h2>
+
+<h3>Your Booked Slots</h3>
+
+@if (ViewBag.Success != null)
+{
+    <div class="alert alert-success">@ViewBag.Success</div>
+}
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+@if (Model != null && Model.Count > 0)
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Time Slot</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Model)
+            {
+                <tr>
+                    <td>@booking.BookingDate.ToString("yyyy-MM-dd")</td>
+                    <td>@booking.TimeSlot</td>
+                    <td>
+                        @using (Html.BeginForm("DeleteBooking", "Account", FormMethod.Post, new { onsubmit = "return confirm('Are you sure you want to cancel this booking?');" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.Hidden("id", booking.Id)
+                            <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>You have not booked any slots yet.</p>
+}
+
+<p>
+    @Html.ActionLink("Book a Slot", "Create", "Booking", null, new { @class = "btn btn-primary" })
+</p>
